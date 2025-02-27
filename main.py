@@ -60,6 +60,29 @@ common_phrases = {
 class TextInput(BaseModel):
     text: str
 
+# Personalization (User Preference Tracking)
+user_preferences = {}
+
+def update_user_preferences(word):
+    """
+    Update user preferences based on the selected word.
+    """
+    user_preferences[word] = user_preferences.get(word, 0) + 1
+
+# Track Prediction Usage (% of Accepted Words)
+accepted_predictions = {"AI": 5, "Data": 3, "Machine": 7}  # Example initial data
+total_predictions = sum(accepted_predictions.values())
+usage_percentage = {word: (count / total_predictions) * 100 for word, count in accepted_predictions.items()}
+
+def update_prediction_usage(word):
+    """
+    Update prediction usage statistics based on the selected word.
+    """
+    accepted_predictions[word] = accepted_predictions.get(word, 0) + 1
+    global total_predictions
+    total_predictions += 1
+    usage_percentage[word] = (accepted_predictions[word] / total_predictions) * 100
+
 # Function to predict next word using LSTM
 def predict_with_lstm(text):
     token_list = tokenizer.texts_to_sequences([text])[0]
@@ -121,5 +144,18 @@ async def predict(input_data: TextInput):
 
       # Format the output as a comma-separated string WITHOUT quotes
     best_predictions_str = ', '.join(best_predictions)
+# Update user preferences and prediction usage
+    selected_word = best_predictions[0]  # Assume the user selects the first prediction
+    update_user_preferences(selected_word)
+    update_prediction_usage(selected_word)
 
+    # Return only the top 3 predictions to the user
     return best_predictions_str
+
+# Admin endpoint to view user preferences and prediction usage
+@app.get("/admin/stats")
+async def admin_stats():
+    return {
+        "user_preferences": user_preferences,
+        "prediction_usage": usage_percentage
+    }
