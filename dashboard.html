@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>W-RITE Expedite</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+
+<body class="bg-light d-flex flex-column align-items-center justify-content-center min-vh-100">
+
+<!-- Navbar (Top Bar) -->
+	<div class="container d-flex justify-content-between align-items-center p-3 bg-white shadow-sm fixed-top">
+    	<h1 class="text-primary">W-RITE Expedite</h1>
+    
+    		<div class="d-flex align-items-center">
+        
+
+<!-- Profile Icon & Name -->
+        		<div class="dropdown">
+                    <button class="btn btn-light dropdown-toggle d-flex align-items-center" type="button" id="profileDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        <span class="badge bg-success rounded-circle text-white px-2 py-1">{{ user.first_name[0] }}</span>  
+                        <span class="ms-2">{{ user.first_name }} {{ user.last_name }}</span>
+                    </button>
+                    
+                    <!-- Dropdown Menu -->
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
+                        <li><a class="dropdown-item" href="#">⚙️ Settings</a></li>
+                        <li><a class="dropdown-item text-danger" href="{{ url_for('logout') }}">🚪 Logout</a></li>
+                    </ul>
+        		</div>
+    		</div>
+	</div>
+
+<!-- Main Options -->
+    <div class="card mt-5 p-4 text-center shadow" style="max-width: 500px; margin-top: 80px;">
+        <h2 class="mb-3">Lets Get Started</h2>
+        <!-- Manually Enter Medium Username -->
+     
+        
+        <a href="{{ url_for('open_notebook') }}" target="_blank" class="btn btn-secondary w-100 mb-2">
+            ✏️ Write on your Own
+        </a>
+    </div>
+
+    <!-- User Status Button -->
+    <div class="fixed-bottom text-end p-4">
+        <button id="status-btn" class="btn btn-warning rounded-circle p-3">
+            😊
+        </button>
+    </div>
+
+    <!-- Status Popup -->
+    <div id="status-popup" class="status-popup shadow-sm p-3 bg-white rounded d-none">
+        <p><strong>Unique Words Used:</strong> <span id="unique-words"></span></p>
+        <p><strong>Most Favourite Word:</strong> <span id="favorite-word"></span></p>
+        <p><strong>Most Rejected Word:</strong> <span id="rejected-word"></span></p>
+    </div>
+
+    <script>
+        document.getElementById("status-btn").addEventListener("click", function() {
+            fetch("/get_status")
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === "success") {
+                        document.getElementById("unique-words").innerText = data.unique_words;
+                        document.getElementById("favorite-word").innerText = data.favorite_word;
+                        document.getElementById("rejected-word").innerText = data.rejected_word;
+                        document.getElementById("status-popup").classList.toggle("d-none");
+                }
+                else {
+                    alert(data.message);
+                    }
+                });
+        });
+    </script>
+
+    <script>
+        // Auto-hide flash messages after 30 seconds (30000 milliseconds)
+        setTimeout(function() {
+            let flashMessages = document.getElementById("flash-messages");
+            if (flashMessages) {
+                flashMessages.style.transition = "opacity 1s";  // Smooth fade-out effect
+                flashMessages.style.opacity = "0";
+                setTimeout(() => flashMessages.remove(), 1000);  // Remove after fade-out
+            }
+        }, 30000);
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>
